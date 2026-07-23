@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<style>
+body{margin:0}
+@keyframes pulseGlow{0%,100%{opacity:.35;transform:scale(1);}50%{opacity:.75;transform:scale(1.3);}}
+a{color:oklch(0.74 0.16 165);text-decoration:none}
+a:hover{color:oklch(0.82 0.16 165)}
+input::placeholder{color:rgba(255,255,255,0.28)}
+input[type="range"]{accent-color:oklch(0.74 0.16 165)}
+</style>
+</helmet>
+<div style="background:oklch(0.10 0.01 260);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:60px 20px;box-sizing:border-box;font-family:-apple-system,system-ui,sans-serif;">
+  <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="true" hint-size="402,874">
+    <div style="height:100%;display:flex;flex-direction:column;position:relative;background:oklch(0.145 0.01 260);overflow:hidden;">
+
+      <div style="padding:62px 20px 6px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:34px;height:34px;border-radius:10px;background:{{ aLogoBg }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="20" height="20" viewBox="0 0 24 24"><path d="M2 19 L9 7 L13 13 L16 8 L22 19 Z" fill="{{ aAccentSoft }}"/><circle cx="17" cy="6" r="2" fill="oklch(0.82 0.15 95)"/></svg>
+          </div>
+          <div>
+            <div style="font-size:15px;font-weight:700;color:oklch(0.97 0.004 260);line-height:1.15;">Schauinslandkönig</div>
+            <div style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Climb Predictor</div>
+          </div>
+        </div>
+        <button onClick="{{ aToggleSettings }}" style="width:36px;height:36px;border-radius:18px;border:none;background:oklch(0.24 0.012 260);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><line x1="4" y1="7" x2="20" y2="7" stroke="rgba(255,255,255,0.65)" stroke-width="1.8" stroke-linecap="round"/><circle cx="9" cy="7" r="2.1" fill="rgba(255,255,255,0.85)"/><line x1="4" y1="12" x2="20" y2="12" stroke="rgba(255,255,255,0.65)" stroke-width="1.8" stroke-linecap="round"/><circle cx="16" cy="12" r="2.1" fill="rgba(255,255,255,0.85)"/><line x1="4" y1="17" x2="20" y2="17" stroke="rgba(255,255,255,0.65)" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17" r="2.1" fill="rgba(255,255,255,0.85)"/></svg>
+        </button>
+      </div>
+
+      <div style="flex:1;overflow:auto;padding:8px 20px 96px;display:flex;flex-direction:column;gap:14px;">
+
+        <sc-if value="{{ aIsPredict }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;background:oklch(0.20 0.012 260);border-radius:12px;padding:4px;gap:4px;">
+            <button onClick="{{ aSetModeWatts }}" style="flex:1;padding:9px 0;border:none;border-radius:9px;font-size:12.5px;font-weight:600;background:{{ aModeWattsBg }};color:{{ aModeWattsColor }};">Watts for time</button>
+            <button onClick="{{ aSetModeTime }}" style="flex:1;padding:9px 0;border:none;border-radius:9px;font-size:12.5px;font-weight:600;background:{{ aModeTimeBg }};color:{{ aModeTimeColor }};">Time for watts</button>
+          </div>
+
+          <div style="background:oklch(0.20 0.012 260);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;">
+            <sc-if value="{{ aModeIsWatts }}" hint-placeholder-val="{{ true }}">
+              <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);text-align:center;">Target time</div>
+              <input value="{{ aTargetTime }}" onChange="{{ aOnTargetTime }}" type="text" inputmode="numeric" placeholder="mm:ss" style="width:100%;background:transparent;border:none;text-align:center;font-size:38px;font-weight:800;color:oklch(0.97 0.004 260);letter-spacing:-0.02em;outline:none;font-family:-apple-system,system-ui;"/>
+            </sc-if>
+            <sc-if value="{{ aModeIsTime }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);text-align:center;">Target power</div>
+              <div style="display:flex;align-items:baseline;justify-content:center;gap:6px;">
+                <input value="{{ aTargetWatts }}" onChange="{{ aOnTargetWatts }}" type="text" inputmode="numeric" style="width:140px;background:transparent;border:none;text-align:right;font-size:38px;font-weight:800;color:oklch(0.97 0.004 260);outline:none;font-family:-apple-system,system-ui;"/>
+                <span style="font-size:18px;font-weight:700;color:rgba(255,255,255,0.4);">W</span>
+              </div>
+            </sc-if>
+            <div style="height:1px;background:rgba(255,255,255,0.08);"></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="font-size:13px;color:rgba(255,255,255,0.55);">Rider weight</div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <button onClick="{{ aWeightMinus }}" style="width:28px;height:28px;border-radius:14px;border:none;background:oklch(0.26 0.014 260);color:#fff;font-size:16px;font-weight:600;">−</button>
+                <div style="font-size:15px;font-weight:700;color:#fff;min-width:52px;text-align:center;">{{ aWeight }} kg</div>
+                <button onClick="{{ aWeightPlus }}" style="width:28px;height:28px;border-radius:14px;border:none;background:oklch(0.26 0.014 260);color:#fff;font-size:16px;font-weight:600;">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:oklch(0.20 0.012 260);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;">
+            <div>
+              <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px;">Model</div>
+              <div style="display:flex;flex-wrap:wrap;gap:7px;">
+                <sc-for list="{{ aModelChips }}" as="chip" hint-placeholder-count="6">
+                  <button onClick="{{ chip.onClick }}" style="padding:6px 11px;border-radius:9px;border:none;font-size:11.5px;font-weight:600;background:{{ chip.bg }};color:{{ chip.color }};">{{ chip.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px;">Riders included</div>
+              <div style="display:flex;flex-wrap:wrap;gap:7px;">
+                <button onClick="{{ aSetAllRiders }}" style="padding:6px 11px;border-radius:9px;border:none;font-size:11.5px;font-weight:600;background:{{ aAllRidersBg }};color:{{ aAllRidersColor }};">All</button>
+                <sc-for list="{{ aRiderChips }}" as="chip" hint-placeholder-count="3">
+                  <button onClick="{{ chip.onClick }}" style="padding:6px 11px;border-radius:9px;border:none;font-size:11.5px;font-weight:600;background:{{ chip.bg }};color:{{ chip.color }};">{{ chip.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <sc-if value="{{ aResultIsCard }}" hint-placeholder-val="{{ true }}">
+            <div style="background:{{ aResultGradient }};border-radius:16px;padding:14px 16px 12px;display:flex;flex-direction:column;gap:3px;">
+              <div style="font-size:10.5px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.6);">Predicted</div>
+              <div style="font-size:32px;font-weight:800;color:#fff;letter-spacing:-0.02em;">{{ aResultBig }}</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.65);">{{ aResultSub }}</div>
+              <button onClick="{{ aToggleSettings }}" style="align-self:flex-start;margin-top:4px;padding:5px 10px;border-radius:8px;border:none;background:rgba(255,255,255,0.14);color:#fff;font-size:11px;font-weight:600;">{{ aModelTag }}</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ aResultIsRing }}" hint-placeholder-val="{{ false }}">
+            <div style="background:oklch(0.20 0.012 260);border-radius:16px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:8px;">
+              <div style="position:relative;width:148px;height:148px;display:flex;align-items:center;justify-content:center;">
+                {{ aResultRing }}
+                <div style="position:absolute;display:flex;flex-direction:column;align-items:center;">
+                  <div style="font-size:23px;font-weight:800;color:#fff;">{{ aResultBig }}</div>
+                  <div style="font-size:10px;color:rgba(255,255,255,0.5);text-align:center;padding:0 10px;">{{ aResultSub }}</div>
+                </div>
+              </div>
+              <button onClick="{{ aToggleSettings }}" style="padding:5px 10px;border-radius:8px;border:none;background:rgba(255,255,255,0.1);color:#fff;font-size:11px;font-weight:600;">{{ aModelTag }}</button>
+            </div>
+          </sc-if>
+
+          <div style="background:oklch(0.20 0.012 260);border-radius:16px;padding:14px 10px 8px;">
+            <div style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.85);padding:0 6px 8px;">Prediction curve</div>
+            {{ aPredictionChart }}
+            <div style="font-size:10.5px;color:rgba(255,255,255,0.35);padding:8px 6px 0;">Scaled from W/kg using rider weight{{ aRibbonNote }}</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ aIsCompare }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;background:oklch(0.20 0.012 260);border-radius:12px;padding:4px;gap:4px;">
+            <button onClick="{{ aCompareViewCurves }}" style="flex:1;padding:9px 0;border:none;border-radius:9px;font-size:12.5px;font-weight:600;background:{{ aCurvesBg }};color:{{ aCurvesColor }};">Curves</button>
+            <button onClick="{{ aCompareViewTable }}" style="flex:1;padding:9px 0;border:none;border-radius:9px;font-size:12.5px;font-weight:600;background:{{ aTableBg }};color:{{ aTableColor }};">Table</button>
+          </div>
+          <sc-if value="{{ aCompareIsCurves }}" hint-placeholder-val="{{ true }}">
+            <div style="background:oklch(0.20 0.012 260);border-radius:16px;padding:14px 12px 10px;">
+              <div style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.85);padding:0 4px 8px;">All candidate models</div>
+              {{ aComparisonChart }}
+              <div style="display:flex;flex-wrap:wrap;gap:8px;padding:10px 4px 2px;">
+                <sc-for list="{{ aComparisonLegend }}" as="item" hint-placeholder-count="6">
+                  <div style="display:flex;align-items:center;gap:5px;padding:4px 8px;border-radius:7px;background:rgba(255,255,255,0.06);">
+                    <div style="width:8px;height:8px;border-radius:4px;background:{{ item.color }};"></div>
+                    <span style="font-size:11px;color:rgba(255,255,255,0.7);">{{ item.label }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ aCompareIsTable }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <sc-for list="{{ aModelTableRows }}" as="row" hint-placeholder-count="6">
+                <div style="background:{{ row.bg }};border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;border:{{ row.border }};">
+                  <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <div style="font-size:14px;font-weight:700;color:#fff;">{{ row.label }}</div>
+                    <sc-if value="{{ row.selected }}" hint-placeholder-val="{{ false }}"><div style="font-size:10px;font-weight:700;color:{{ row.badgeColor }};background:{{ row.badgeBg }};padding:3px 7px;border-radius:6px;">SELECTED</div></sc-if>
+                  </div>
+                  <div style="display:flex;gap:14px;font-size:11.5px;color:rgba(255,255,255,0.5);flex-wrap:wrap;">
+                    <span>RMSE {{ row.rmse }}</span><span>Weighted {{ row.wrmse }}</span><span>AIC {{ row.aic }}</span>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </sc-if>
+
+        <sc-if value="{{ aIsRiders }}" hint-placeholder-val="{{ false }}">
+          <div style="background:oklch(0.20 0.012 260);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;">
+            <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Riders &amp; weight</div>
+            <sc-for list="{{ aRiderProfiles }}" as="rp" hint-placeholder-count="2">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="font-size:14px;font-weight:600;color:#fff;">{{ rp.name }}</div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <button onClick="{{ rp.minus }}" style="width:26px;height:26px;border-radius:13px;border:none;background:oklch(0.28 0.014 260);color:#fff;font-size:15px;">−</button>
+                  <span style="font-size:14px;font-weight:700;color:#fff;min-width:50px;text-align:center;">{{ rp.weight }} kg</span>
+                  <button onClick="{{ rp.plus }}" style="width:26px;height:26px;border-radius:13px;border:none;background:oklch(0.28 0.014 260);color:#fff;font-size:15px;">+</button>
+                </div>
+              </div>
+            </sc-for>
+            <div style="display:flex;gap:8px;">
+              <input value="{{ aNewRiderName }}" onChange="{{ aOnNewRiderName }}" type="text" placeholder="New rider name" style="flex:1;background:oklch(0.26 0.014 260);border:none;border-radius:9px;padding:9px 10px;font-size:13px;color:#fff;outline:none;"/>
+              <button onClick="{{ aAddRiderProfile }}" style="padding:9px 14px;border:none;border-radius:9px;background:{{ aAccentSoft }};color:#06110c;font-size:13px;font-weight:700;">Add</button>
+            </div>
+            <sc-if value="{{ aRiderProfileError }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:11.5px;color:#f88;">{{ aRiderProfileError }}</div>
+            </sc-if>
+          </div>
+
+          <div style="background:oklch(0.20 0.012 260);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:12px;">
+            <div style="display:flex;gap:10px;">
+              <button onClick="{{ aCycleRiderA }}" style="flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:4px;background:oklch(0.22 0.012 260);border:1.5px solid {{ aRiderAColor }};border-radius:12px;padding:10px 12px;">
+                <span style="font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Rider A</span>
+                <span style="font-size:15px;font-weight:700;color:{{ aRiderAColor }};">{{ aRiderALabel }}</span>
+              </button>
+              <button onClick="{{ aCycleRiderB }}" style="flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:4px;background:oklch(0.22 0.012 260);border:1.5px solid {{ aRiderBColor }};border-radius:12px;padding:10px 12px;">
+                <span style="font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Rider B</span>
+                <span style="font-size:15px;font-weight:700;color:{{ aRiderBColor }};">{{ aRiderBLabel }}</span>
+              </button>
+            </div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.35);">Tap a card to cycle riders · model: {{ aRidersModelLabel }}</div>
+          </div>
+
+          <sc-if value="{{ aRidersHaveChart }}" hint-placeholder-val="{{ true }}">
+            <div style="background:oklch(0.20 0.012 260);border-radius:16px;padding:14px 12px 10px;">
+              <div style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.85);padding:0 4px 8px;">Head to head</div>
+              {{ aRidersChart }}
+              <div style="display:flex;flex-wrap:wrap;gap:8px;padding:10px 4px 2px;">
+                <div style="display:flex;align-items:center;gap:5px;padding:4px 8px;border-radius:7px;background:rgba(255,255,255,0.06);">
+                  <div style="width:8px;height:8px;border-radius:4px;background:{{ aRiderAColor }};"></div>
+                  <span style="font-size:11px;color:rgba(255,255,255,0.7);">{{ aRiderALabel }}</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:5px;padding:4px 8px;border-radius:7px;background:rgba(255,255,255,0.06);">
+                  <div style="width:8px;height:8px;border-radius:4px;background:{{ aRiderBColor }};"></div>
+                  <span style="font-size:11px;color:rgba(255,255,255,0.7);">{{ aRiderBLabel }}</span>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;">
+              <div style="flex:1;background:oklch(0.20 0.012 260);border-radius:14px;padding:12px 14px;">
+                <div style="font-size:12px;font-weight:700;color:{{ aRiderAColor }};margin-bottom:4px;">{{ aRiderALabel }}</div>
+                <div style="font-size:18px;font-weight:800;color:#fff;">{{ aRiderAStatBig }}</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.45);">{{ aRiderAStatSub }}</div>
+              </div>
+              <div style="flex:1;background:oklch(0.20 0.012 260);border-radius:14px;padding:12px 14px;">
+                <div style="font-size:12px;font-weight:700;color:{{ aRiderBColor }};margin-bottom:4px;">{{ aRiderBLabel }}</div>
+                <div style="font-size:18px;font-weight:800;color:#fff;">{{ aRiderBStatBig }}</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.45);">{{ aRiderBStatSub }}</div>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ aRidersNoChart }}" hint-placeholder-val="{{ false }}">
+            <div style="background:oklch(0.20 0.012 260);border-radius:16px;padding:20px;text-align:center;color:rgba(255,255,255,0.45);font-size:13px;">{{ aRidersEmptyMessage }}</div>
+          </sc-if>
+        </sc-if>
+
+        <sc-if value="{{ aIsHistory }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:13px;color:rgba(255,255,255,0.5);">{{ aRideCount }} rides logged</div>
+            <div style="display:flex;gap:6px;">
+              <button onClick="{{ aHistorySortFastest }}" style="padding:6px 10px;border:none;border-radius:8px;font-size:11.5px;font-weight:600;background:{{ aSortFastestBg }};color:{{ aSortFastestColor }};">Fastest</button>
+              <button onClick="{{ aHistorySortRecent }}" style="padding:6px 10px;border:none;border-radius:8px;font-size:11.5px;font-weight:600;background:{{ aSortRecentBg }};color:{{ aSortRecentColor }};">Recent</button>
+            </div>
+          </div>
+
+          <button onClick="{{ aToggleAddForm }}" style="padding:10px 0;border:1px dashed rgba(255,255,255,0.25);border-radius:12px;background:transparent;color:{{ aAccentSoft }};font-size:13px;font-weight:600;">{{ aAddFormToggleLabel }}</button>
+
+          <sc-if value="{{ aAddFormOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="background:oklch(0.20 0.012 260);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;gap:8px;">
+                <select value="{{ aNewRider }}" onChange="{{ aOnNewRider }}" style="flex:1;background:oklch(0.26 0.014 260);border:none;border-radius:9px;padding:9px 10px;font-size:13px;color:#fff;outline:none;">
+                  <sc-for list="{{ aRiderOptions }}" as="opt" hint-placeholder-count="2">
+                    <option value="{{ opt }}">{{ opt }}</option>
+                  </sc-for>
+                </select>
+                <input value="{{ aNewDate }}" onChange="{{ aOnNewDate }}" type="date" style="flex:1;background:oklch(0.26 0.014 260);border:none;border-radius:9px;padding:9px 10px;font-size:13px;color:#fff;outline:none;"/>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <input value="{{ aNewTime }}" onChange="{{ aOnNewTime }}" type="text" inputmode="numeric" placeholder="Time mm:ss" style="flex:1;background:oklch(0.26 0.014 260);border:none;border-radius:9px;padding:9px 10px;font-size:13px;color:#fff;outline:none;"/>
+                <input value="{{ aNewPower }}" onChange="{{ aOnNewPower }}" type="text" inputmode="numeric" placeholder="Power W" style="flex:1;background:oklch(0.26 0.014 260);border:none;border-radius:9px;padding:9px 10px;font-size:13px;color:#fff;outline:none;"/>
+              </div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input value="{{ aNewHR }}" onChange="{{ aOnNewHR }}" type="text" inputmode="numeric" placeholder="HR bpm (optional)" style="flex:1;background:oklch(0.26 0.014 260);border:none;border-radius:9px;padding:9px 10px;font-size:13px;color:#fff;outline:none;"/>
+                <div style="flex:1;font-size:12px;color:rgba(255,255,255,0.5);padding:9px 10px;">VAM auto: {{ aNewVamPreview }}</div>
+              </div>
+              <sc-if value="{{ aFormError }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:11.5px;color:#f88;">{{ aFormError }}</div>
+              </sc-if>
+              <button onClick="{{ aSubmitRide }}" style="padding:10px 0;border:none;border-radius:10px;background:{{ aAccentSoft }};color:#06110c;font-size:13.5px;font-weight:700;">Add ride</button>
+            </div>
+          </sc-if>
+
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <sc-for list="{{ aHistoryRows }}" as="ride" hint-placeholder-count="10">
+              <div style="background:oklch(0.20 0.012 260);border-radius:14px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                <div>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <div style="font-size:14px;font-weight:700;color:#fff;">{{ ride.time }}</div>
+                    <div style="font-size:10px;font-weight:700;color:{{ aAccentSoft }};background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:6px;">{{ ride.rider }}</div>
+                  </div>
+                  <div style="font-size:11px;color:rgba(255,255,255,0.45);">{{ ride.dateLabel }}</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:15px;font-weight:700;color:{{ aAccentSoft }};">{{ ride.power }} W</div>
+                  <div style="font-size:11px;color:rgba(255,255,255,0.45);">{{ ride.hr }} bpm · VAM {{ ride.vam }}</div>
+                </div>
+                <button onClick="{{ ride.onDelete }}" style="width:26px;height:26px;flex-shrink:0;border-radius:13px;border:none;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);font-size:13px;">✕</button>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+      </div>
+
+      <div style="position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-around;padding:8px 10px 26px;background:oklch(0.13 0.01 260 / 0.94);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.08);z-index:10;">
+        <button onClick="{{ aSetTabPredict }}" style="display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;">
+          <svg width="22" height="22" viewBox="0 0 24 24"><path d="M2 19 L9 7 L13 13 L16 8 L22 19 Z" fill="{{ aTabPredictColor }}"/></svg>
+          <span style="font-size:10px;font-weight:600;color:{{ aTabPredictColor }};">Predict</span>
+        </button>
+        <button onClick="{{ aSetTabCompare }}" style="display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;">
+          <svg width="22" height="22" viewBox="0 0 24 24"><rect x="4" y="12" width="4" height="8" rx="1" fill="{{ aTabCompareColor }}"/><rect x="10" y="7" width="4" height="13" rx="1" fill="{{ aTabCompareColor }}"/><rect x="16" y="3" width="4" height="17" rx="1" fill="{{ aTabCompareColor }}"/></svg>
+          <span style="font-size:10px;font-weight:600;color:{{ aTabCompareColor }};">Compare</span>
+        </button>
+        <button onClick="{{ aSetTabHistory }}" style="display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="{{ aTabHistoryColor }}" stroke-width="1.8"/><path d="M12 7v5l3.5 2" stroke="{{ aTabHistoryColor }}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span style="font-size:10px;font-weight:600;color:{{ aTabHistoryColor }};">History</span>
+        </button>
+        <button onClick="{{ aSetTabRiders }}" style="display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="8" r="3" stroke="{{ aTabRidersColor }}" stroke-width="1.8"/><circle cx="17" cy="9" r="2.4" stroke="{{ aTabRidersColor }}" stroke-width="1.8"/><path d="M3 20c0-3 2.5-5.5 5-5.5s5 2.5 5 5.5M13 20c.3-2 1.8-4 4.5-4s4.2 1.6 4.5 4" stroke="{{ aTabRidersColor }}" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span style="font-size:10px;font-weight:600;color:{{ aTabRidersColor }};">Riders</span>
+        </button>
+      </div>
+
+      <sc-if value="{{ aSettingsOpen }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ aCloseSettings }}" style="position:absolute;inset:0;background:rgba(0,0,0,0.55);z-index:40;"></div>
+        <div style="position:absolute;left:0;right:0;bottom:0;z-index:41;background:oklch(0.17 0.012 260);border-radius:20px 20px 0 0;padding:14px 18px 34px;max-height:78%;overflow:auto;box-shadow:0 -10px 40px rgba(0,0,0,0.4);display:flex;flex-direction:column;gap:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:17px;font-weight:700;color:#fff;">Settings</div>
+            <button onClick="{{ aCloseSettings }}" style="width:30px;height:30px;border-radius:15px;border:none;background:rgba(255,255,255,0.1);color:#fff;font-size:14px;">✕</button>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;background:oklch(0.22 0.012 260);border-radius:12px;padding:10px 14px;">
+            <span style="font-size:13.5px;color:rgba(255,255,255,0.7);">Rider weight</span>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <button onClick="{{ aWeightMinus }}" style="width:28px;height:28px;border-radius:14px;border:none;background:oklch(0.28 0.014 260);color:#fff;">−</button>
+              <span style="font-size:15px;font-weight:700;color:#fff;min-width:48px;text-align:center;">{{ aWeight }} kg</span>
+              <button onClick="{{ aWeightPlus }}" style="width:28px;height:28px;border-radius:14px;border:none;background:oklch(0.28 0.014 260);color:#fff;">+</button>
+            </div>
+          </div>
+
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+              <span style="font-size:13.5px;color:rgba(255,255,255,0.7);">Fast-time emphasis</span>
+              <span style="font-size:13px;font-weight:700;color:{{ aAccentSoft }};">{{ aFastWeight }}</span>
+            </div>
+            <input value="{{ aFastWeight }}" onChange="{{ aOnFastWeight }}" type="range" min="0" max="3" step="0.25" style="width:100%;"/>
+            <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:4px;">Higher values weight faster rides more during model selection.</div>
+          </div>
+
+          <div style="height:1px;background:rgba(255,255,255,0.08);"></div>
+
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Data</div>
+            <button onClick="{{ aExportCsv }}" style="display:flex;align-items:center;justify-content:space-between;background:oklch(0.22 0.012 260);border:none;border-radius:12px;padding:12px 14px;">
+              <span style="font-size:13.5px;color:#fff;">Export history as CSV</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14" stroke="rgba(255,255,255,0.6)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <label style="display:flex;align-items:center;justify-content:space-between;background:oklch(0.22 0.012 260);border-radius:12px;padding:12px 14px;">
+              <span style="font-size:13.5px;color:#fff;">Import CSV</span>
+              <input type="file" accept=".csv,text/csv" onChange="{{ aImportCsv }}" style="display:none;"/>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 15V4m0 0l-4 4m4-4l4 4M5 19h14" stroke="rgba(255,255,255,0.6)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </label>
+            <div style="font-size:11px;color:rgba(255,255,255,0.35);padding:0 2px;">Dataset based on Lennart's Schaui-Bib.</div>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </x-import>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;accentColor&quot;: {&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#5EE6B0&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#5EE6B0&quot;,&quot;#FF8A4C&quot;,&quot;#4C9CFF&quot;,&quot;#C084FC&quot;],&quot;section&quot;:&quot;Theme&quot;},
+  &quot;resultStyle&quot;: {&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;card&quot;,&quot;tsType&quot;:&quot;'card' | 'ring'&quot;,&quot;options&quot;:[&quot;card&quot;,&quot;ring&quot;],&quot;section&quot;:&quot;Layout&quot;},
+  &quot;chartStyle&quot;: {&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;confidence&quot;,&quot;tsType&quot;:&quot;'confidence' | 'minimal'&quot;,&quot;options&quot;:[&quot;confidence&quot;,&quot;minimal&quot;],&quot;section&quot;:&quot;Layout&quot;}
+}">
+const DEFAULT_RIDER_WEIGHTS = {'Lennart': 80, 'Lilly': 62};
+const CLIMB_ASCENT_M = 755;
+const plotMinSec = 30 * 60;
+const plotMaxSec = 90 * 60;
+const GREEN_FALLBACK = '#5EE6B0';
+const MUTED_LINES = ['oklch(0.55 0.03 260)','oklch(0.55 0.03 285)','oklch(0.55 0.03 220)','oklch(0.55 0.03 305)','oklch(0.55 0.03 240)','oklch(0.55 0.03 200)'];
+
+const DEFAULT_RAW_DATA = [
+  {date:'2026-04-07', time:'35:59', power:371, HR:181, VAM:1259, rider:'Lennart'},
+  {date:'2026-04-05', time:'36:07', power:373, HR:178, VAM:1254, rider:'Lennart'},
+  {date:'2025-08-22', time:'37:23', power:356, HR:175, VAM:1211, rider:'Lennart'},
+  {date:'2025-07-15', time:'37:36', power:348, HR:174, VAM:1204, rider:'Lennart'},
+  {date:'2025-05-20', time:'39:39', power:329, HR:170, VAM:1142, rider:'Lennart'},
+  {date:'2025-04-15', time:'40:28', power:327, HR:165, VAM:1119, rider:'Lennart'},
+  {date:'2025-03-07', time:'41:06', power:321, HR:171, VAM:1102, rider:'Lennart'},
+  {date:'2025-10-21', time:'42:20', power:326, HR:166, VAM:1070, rider:'Lennart'},
+  {date:'2024-10-29', time:'44:18', power:298, HR:166, VAM:1022, rider:'Lennart'},
+  {date:'2025-10-10', time:'44:48', power:298, HR:155, VAM:1011, rider:'Lennart'},
+  {date:'2024-12-14', time:'45:04', power:304, HR:164, VAM:1005, rider:'Lennart'},
+  {date:'2025-09-11', time:'45:06', power:303, HR:164, VAM:1004, rider:'Lennart'},
+  {date:'2026-01-18', time:'45:36', power:305, HR:163, VAM:993, rider:'Lennart'},
+  {date:'2024-10-06', time:'46:02', power:284, HR:169, VAM:984, rider:'Lennart'},
+  {date:'2026-05-25', time:'46:13', power:304, HR:147, VAM:980, rider:'Lennart'},
+  {date:'2025-02-18', time:'46:52', power:299, HR:166, VAM:966, rider:'Lennart'},
+  {date:'2025-08-12', time:'49:08', power:278, HR:139, VAM:922, rider:'Lennart'},
+  {date:'2025-08-08', time:'49:28', power:279, HR:148, VAM:916, rider:'Lennart'},
+  {date:'2026-03-05', time:'49:44', power:269, HR:139, VAM:911, rider:'Lennart'},
+  {date:'2025-10-02', time:'53:23', power:242, HR:145, VAM:848, rider:'Lennart'},
+  {date:'2025-11-13', time:'53:30', power:253, HR:130, VAM:847, rider:'Lennart'},
+  {date:'2025-01-18', time:'55:04', power:255, HR:139, VAM:822, rider:'Lennart'},
+  {date:'2024-11-30', time:'56:53', power:237, HR:133, VAM:796, rider:'Lennart'},
+  {date:'2026-02-28', time:'57:13', power:244, HR:130, VAM:792, rider:'Lennart'},
+  {date:'2025-07-19', time:'58:36', power:216, HR:131, VAM:773, rider:'Lennart'},
+  {date:'2025-12-04', time:'1:02:55', power:232, HR:149, VAM:720, rider:'Lennart'},
+  {date:'2025-09-17', time:'1:25:34', power:154, HR:113, VAM:529, rider:'Lennart'},
+  {date:'2026-06-22', time:'52:22', power:196, HR:163, VAM:865, rider:'Lilly'},
+  {date:'2026-03-04', time:'75:29', power:125, HR:null, VAM:600, rider:'Lilly'},
+  {date:'2026-03-10', time:'56:28', power:169, HR:null, VAM:802, rider:'Lilly'},
+  {date:'2026-05-21', time:'66:28', power:157, HR:null, VAM:682, rider:'Lilly'},
+  {date:'2026-06-01', time:'53:58', power:187, HR:null, VAM:839, rider:'Lilly'},
+  {date:'2026-07-13', time:'68:33', power:148, HR:null, VAM:661, rider:'Lilly'}
+];
+
+const modelDefs = {
+  log_linear: { features: t => { const m = t/60; return [1, Math.log(m)]; } },
+  log_quadratic: { features: t => { const l = Math.log(t/60); return [1, l, l*l]; } },
+  reciprocal: { features: t => { const m = t/60; return [1, 1/m]; } },
+  reciprocal_quadratic: { features: t => { const inv = 1/(t/60); return [1, inv, inv*inv]; } },
+  combined_log_reciprocal: { features: t => { const m = t/60; return [1, Math.log(m), 1/m]; } },
+  power_law_like: { features: t => { const m = t/60; return [1, Math.log(m), Math.sqrt(1/m)]; } }
+};
+const MODEL_NAMES = Object.keys(modelDefs);
+const MODEL_LABELS = {
+  log_linear: 'Log linear', log_quadratic: 'Log quadratic', reciprocal: 'Reciprocal',
+  reciprocal_quadratic: 'Reciprocal²', combined_log_reciprocal: 'Log + recip.', power_law_like: 'Power law'
+};
+
+function hexToRgb(hex) { hex = String(hex).replace('#',''); if (hex.length===3) hex = hex.split('').map(c=>c+c).join(''); const num = parseInt(hex,16); return [(num>>16)&255,(num>>8)&255,num&255]; }
+function relLum(rgb) { const [r,g,b] = rgb.map(v=>{ v/=255; return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4); }); return 0.2126*r+0.7152*g+0.0722*b; }
+function contrastOn(hex) { return relLum(hexToRgb(hex))>0.45 ? '#06110c' : '#ffffff'; }
+function mixHex(hex, target, t) { const a=hexToRgb(hex); const r=Math.round(a[0]+(target[0]-a[0])*t), g=Math.round(a[1]+(target[1]-a[1])*t), b=Math.round(a[2]+(target[2]-a[2])*t); return 'rgb('+r+','+g+','+b+')'; }
+
+function parseTimeToSec(value) {
+  const parts = String(value).trim().split(':').map(Number);
+  if (parts.some(Number.isNaN)) return NaN;
+  if (parts.length === 2) return parts[0]*60 + parts[1];
+  if (parts.length === 3) return parts[0]*3600 + parts[1]*60 + parts[2];
+  return NaN;
+}
+function secToTime(sec) {
+  const s0 = Math.round(sec);
+  const h = Math.floor(s0/3600), m = Math.floor((s0%3600)/60), s = s0%60;
+  if (h > 0) return h+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  return m+':'+String(s).padStart(2,'0');
+}
+function prettyNum(x, digits) { return Number(x).toLocaleString(undefined, {maximumFractionDigits: digits, minimumFractionDigits: 0}); }
+function range(n) { return Array.from({length:n}, (_,i)=>i); }
+function transpose(A) { return A[0].map((_,j)=>A.map(row=>row[j])); }
+function matMul(A,B) {
+  const rows=A.length, cols=B[0].length, mid=B.length;
+  const out = Array.from({length:rows}, ()=>Array(cols).fill(0));
+  for (let i=0;i<rows;i++) for (let k=0;k<mid;k++) for (let j=0;j<cols;j++) out[i][j]+=A[i][k]*B[k][j];
+  return out;
+}
+function matVecMul(A,v) { return A.map(row=>row.reduce((s,a,i)=>s+a*v[i],0)); }
+function dot(a,b) { return a.reduce((s,x,i)=>s+x*b[i],0); }
+function inverse(A) {
+  const n=A.length;
+  const M=A.map((row,i)=>row.concat(range(n).map(j=>i===j?1:0)));
+  for (let i=0;i<n;i++) {
+    let maxRow=i;
+    for (let r=i+1;r<n;r++) if (Math.abs(M[r][i])>Math.abs(M[maxRow][i])) maxRow=r;
+    if (Math.abs(M[maxRow][i])<1e-14) throw new Error('Singular matrix');
+    [M[i],M[maxRow]]=[M[maxRow],M[i]];
+    const pivot=M[i][i];
+    for (let j=0;j<2*n;j++) M[i][j]/=pivot;
+    for (let r=0;r<n;r++) { if (r===i) continue; const f=M[r][i]; for (let j=0;j<2*n;j++) M[r][j]-=f*M[i][j]; }
+  }
+  return M.map(row=>row.slice(n));
+}
+function addRidge(A,lambda) { return A.map((row,i)=>row.map((v,j)=>v+(i===j?lambda:0))); }
+function stableInverse(A) {
+  const lambdas=[0,1e-10,1e-8,1e-6,1e-4]; let lastError=null;
+  for (const lambda of lambdas) { try { return inverse(lambda===0?A:addRidge(A,lambda)); } catch(e) { lastError=e; } }
+  throw lastError || new Error('Matrix inversion failed');
+}
+function cleanData(rawData, fastWeightStrength, riderWeights, riderFilter) {
+  let rows = rawData.filter(r => !riderFilter || riderFilter.length===0 || riderFilter.includes(r.rider)).map(r=>{
+    const timeSec=parseTimeToSec(r.time);
+    const weight=(riderWeights && riderWeights[r.rider]) || 80;
+    return Object.assign({}, r, {timeSec, power:Number(r.power), weight, powerToWeight:Number(r.power)/weight});
+  }).filter(r=>Number.isFinite(r.timeSec)&&Number.isFinite(r.powerToWeight)&&r.timeSec>=plotMinSec&&r.timeSec<=plotMaxSec)
+    .sort((a,b)=>a.timeSec-b.timeSec);
+  if (!rows.length) return rows;
+  const maxT=Math.max(...rows.map(r=>r.timeSec));
+  return rows.map(r=>Object.assign({}, r, {selectionWeight: Math.pow(maxT/r.timeSec, fastWeightStrength)}));
+}
+function fitLinearModel(rows, modelDef) {
+  const X=rows.map(r=>modelDef.features(r.timeSec));
+  const y=rows.map(r=>r.powerToWeight);
+  const Xt=transpose(X); const XtX=matMul(Xt,X); const XtXInv=stableInverse(XtX);
+  const Xty=matVecMul(Xt,y); const beta=matVecMul(XtXInv,Xty);
+  const pred=X.map(x=>dot(x,beta));
+  const p=beta.length, n=rows.length;
+  const rss=y.reduce((s,yi,i)=>s+Math.pow(yi-pred[i],2),0);
+  const sigma2=rss/Math.max(1,n-p);
+  return {modelDef, beta, XtXInv, sigma2, rss, n, p};
+}
+function predictWkg(fit, timeSec) { return dot(fit.modelDef.features(timeSec), fit.beta); }
+function predictWkgInterval(fit, timeSec) {
+  const x=fit.modelDef.features(timeSec);
+  const tmp=matVecMul(fit.XtXInv,x);
+  const se=Math.sqrt(Math.max(0, fit.sigma2*dot(x,tmp)));
+  const yhat=dot(x,fit.beta);
+  return {fit:yhat, lwr:yhat-1.96*se, upr:yhat+1.96*se};
+}
+function rmse(actual,pred) { return Math.sqrt(actual.reduce((s,y,i)=>s+(y-pred[i])**2,0)/actual.length); }
+function weightedRmse(actual,pred,weights) {
+  let num=0,den=0;
+  for (let i=0;i<actual.length;i++) { num+=weights[i]*Math.pow(actual[i]-pred[i],2); den+=weights[i]; }
+  return Math.sqrt(num/den);
+}
+function evaluateModel(name, rows) {
+  const def=modelDefs[name];
+  let fullFit;
+  try { fullFit=fitLinearModel(rows, def); }
+  catch(e) { return {model:name, n_parameters:def.features(rows[0].timeSec).length, aic:Infinity, bic:Infinity, rmse_in_sample_wkg:Infinity, loocv_rmse_wkg:Infinity, weighted_loocv_rmse_wkg:Infinity}; }
+  const actual=rows.map(r=>r.powerToWeight);
+  const fullPred=rows.map(r=>predictWkg(fullFit, r.timeSec));
+  const loocvPred=rows.map((_,i)=>{
+    try { const train=rows.filter((__,j)=>j!==i); const f=fitLinearModel(train, def); return predictWkg(f, rows[i].timeSec); }
+    catch(e) { return NaN; }
+  });
+  const valid=loocvPred.map(Number.isFinite);
+  const actualV=actual.filter((_,i)=>valid[i]);
+  const predV=loocvPred.filter(Number.isFinite);
+  const weightsV=rows.map(r=>r.selectionWeight).filter((_,i)=>valid[i]);
+  const aic=rows.length*Math.log(fullFit.rss/rows.length)+2*fullFit.p;
+  const bic=rows.length*Math.log(fullFit.rss/rows.length)+Math.log(rows.length)*fullFit.p;
+  return {model:name, n_parameters:fullFit.p, aic, bic, rmse_in_sample_wkg:rmse(actual,fullPred), loocv_rmse_wkg:rmse(actualV,predV), weighted_loocv_rmse_wkg:weightedRmse(actualV,predV,weightsV)};
+}
+function fitChosen(rows, choice) { return fitLinearModel(rows, modelDefs[choice]); }
+function curveData(fit, n) {
+  n = n || 300;
+  return range(n).map(i=>{
+    const t=plotMinSec+(plotMaxSec-plotMinSec)*i/(n-1);
+    return Object.assign({timeSec:t}, predictWkgInterval(fit,t));
+  });
+}
+function predictTimeFromWkg(fit, targetWkg) {
+  const f = t => predictWkg(fit,t)-targetWkg;
+  let lo=plotMinSec, hi=plotMaxSec, flo=f(lo), fhi=f(hi);
+  if (flo*fhi>0) return Math.abs(flo)<Math.abs(fhi) ? lo : hi;
+  for (let i=0;i<80;i++) { const mid=(lo+hi)/2, fm=f(mid); if (Math.abs(fm)<1e-8) return mid; if (flo*fm<=0) { hi=mid; fhi=fm; } else { lo=mid; flo=fm; } }
+  return (lo+hi)/2;
+}
+function niceBreaks(minVal,maxVal,count) {
+  if (minVal===maxVal) return [minVal];
+  const span=maxVal-minVal, raw=span/Math.max(1,count-1);
+  const pow10=Math.pow(10, Math.floor(Math.log10(raw)));
+  const mults=[1,2,2.5,5,10];
+  const step=mults.find(m=>raw<=m*pow10)*pow10;
+  const start=Math.floor(minVal/step)*step, end=Math.ceil(maxVal/step)*step;
+  const out=[]; for (let v=start; v<=end+step/2; v+=step) out.push(Number(v.toPrecision(12)));
+  return out;
+}
+function fmtDate(iso) {
+  const d=new Date(iso+'T00:00:00');
+  return d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+}
+function parseCsvText(text) {
+  const lines=text.trim().split(/\r?\n/).filter(Boolean);
+  const header=lines.shift().split(',').map(h=>h.trim());
+  return lines.map(line=>{
+    const cells=line.split(',').map(c=>c.trim());
+    const obj={}; header.forEach((h,i)=>obj[h]=cells[i]);
+    return {date:obj.date, time:obj.time, power:Number(obj.power), HR:Number(obj.HR||obj.hr), VAM:Number(obj.VAM||obj.vam), name:obj.name};
+  });
+}
+function clamp01(x) { return Math.max(0, Math.min(1, x)); }
+
+function buildChart(cfg) {
+  const W=760, H=680;
+  const m={top:26,right:20,bottom:48,left:78};
+  const innerW=W-m.left-m.right, innerH=H-m.top-m.bottom;
+  const xMin=30, xMax=60;
+  const yValsAll=cfg.yValues.filter(Number.isFinite);
+  let yMin=Math.min(...yValsAll), yMax=Math.max(...yValsAll);
+  const pad=(yMax-yMin)*0.12||1; yMin-=pad; yMax+=pad;
+  const yBreaks=niceBreaks(yMin,yMax,4);
+  yMin=Math.min(yMin,yBreaks[0]); yMax=Math.max(yMax,yBreaks[yBreaks.length-1]);
+  const xScale = x => m.left+(x-xMin)/(xMax-xMin)*innerW;
+  const yScale = y => m.top+(yMax-y)/(yMax-yMin)*innerH;
+  const accent = cfg.accent || GREEN_FALLBACK;
+  const kids=[];
+  kids.push(React.createElement('rect',{key:'bg',x:m.left,y:m.top,width:innerW,height:innerH,fill:'rgba(255,255,255,0.035)',rx:10}));
+  yBreaks.forEach((y,i)=>{
+    const yy=Math.max(m.top+11, Math.min(H-m.bottom-6, yScale(y)));
+    kids.push(React.createElement('line',{key:'gy'+i,x1:m.left,y1:yScale(y),x2:W-m.right,y2:yScale(y),stroke:'rgba(255,255,255,0.07)',strokeWidth:1}));
+    kids.push(React.createElement('text',{key:'ty'+i,x:m.left-10,y:yy+6,textAnchor:'end',fontSize:20,fontWeight:600,fill:'rgba(255,255,255,0.55)',fontFamily:'-apple-system,system-ui'},cfg.yFormat(y)));
+  });
+  for (let x=30;x<=60.001;x+=15) {
+    const xx=xScale(x);
+    const anchor = x===30 ? 'start' : x===60 ? 'end' : 'middle';
+    kids.push(React.createElement('line',{key:'gx'+x,x1:xx,y1:m.top,x2:xx,y2:H-m.bottom,stroke:'rgba(255,255,255,0.05)',strokeWidth:1}));
+    kids.push(React.createElement('text',{key:'tx'+x,x:xx,y:H-m.bottom+28,textAnchor:anchor,fontSize:20,fontWeight:600,fill:'rgba(255,255,255,0.55)',fontFamily:'-apple-system,system-ui'},Math.round(x)+'m'));
+  }
+  if (cfg.ribbon) {
+    const top=cfg.ribbon.points.map((p,i)=>(i===0?'M':'L')+' '+xScale(p.timeSec/60).toFixed(2)+' '+yScale(p[cfg.ribbon.uprKey]).toFixed(2));
+    const bot=cfg.ribbon.points.slice().reverse().map(p=>'L '+xScale(p.timeSec/60).toFixed(2)+' '+yScale(p[cfg.ribbon.lwrKey]).toFixed(2));
+    kids.push(React.createElement('path',{key:'ribbon',d:top.concat(bot).join(' ')+' Z',fill:accent,opacity:0.16}));
+  }
+  (cfg.lines||[]).forEach((line,li)=>{
+    const d=line.points.map((p,i)=>(i===0?'M':'L')+' '+xScale(p.timeSec/60).toFixed(2)+' '+yScale(p[line.yKey]).toFixed(2)).join(' ');
+    kids.push(React.createElement('path',{key:'line'+li,d,fill:'none',stroke:line.color||accent,strokeWidth:line.width||2.6}));
+  });
+  (cfg.points||[]).forEach((p,i)=>{
+    kids.push(React.createElement('circle',{key:'pt'+i,cx:xScale(p.x),cy:yScale(p.y),r:p.r||7,fill:'rgba(255,255,255,0.5)',stroke:'rgba(255,255,255,0.15)',strokeWidth:1}));
+  });
+  if (cfg.predPoint) {
+    const px=xScale(cfg.predPoint.x), py=yScale(cfg.predPoint.y);
+    kids.push(React.createElement('circle',{key:'glow',cx:px,cy:py,r:20,fill:accent,opacity:0.35,style:{animation:'pulseGlow 2s ease-in-out infinite'}}));
+    kids.push(React.createElement('circle',{key:'pred',cx:px,cy:py,r:9,fill:accent,stroke:'#fff',strokeWidth:2.2}));
+    kids.push(React.createElement('text',{key:'predlbl',x:Math.min(Math.max(px+16,m.left+4),W-m.right-130),y:Math.max(py-20,m.top+20),fontSize:26,fontWeight:700,fill:'#fff',fontFamily:'-apple-system,system-ui'},cfg.predPoint.label));
+  }
+  return React.createElement('svg',{viewBox:'0 0 '+W+' '+H,style:{width:'100%',height:'auto',aspectRatio:W+'/'+H,display:'block'}},kids);
+}
+function buildRing(pct, size, strokeW, color, trackColor) {
+  const r=(size-strokeW)/2, c=size/2, circumference=2*Math.PI*r;
+  const dash=circumference*clamp01(pct);
+  return React.createElement('svg',{width:size,height:size,viewBox:'0 0 '+size+' '+size},
+    React.createElement('circle',{cx:c,cy:c,r,fill:'none',stroke:trackColor,strokeWidth:strokeW}),
+    React.createElement('circle',{cx:c,cy:c,r,fill:'none',stroke:color,strokeWidth:strokeW,strokeDasharray:dash+' '+(circumference-dash),strokeLinecap:'round',transform:'rotate(-90 '+c+' '+c+')'})
+  );
+}
+
+function computeAll(rawData, ps, riderWeights) {
+  const fastStrength = ps.fastWeight != null ? ps.fastWeight : 1;
+  const rows = cleanData(rawData, fastStrength, riderWeights, ps.riders);
+  if (rows.length < 6) return {error: rows.length ? 'Not enough data for this rider selection.' : 'No rides for this rider selection.'};
+  const fit = fitChosen(rows, ps.modelChoice || 'reciprocal');
+  const curve = curveData(fit).map(d=>Object.assign({}, d, {fitWatts:d.fit*ps.weight, lwrWatts:d.lwr*ps.weight, uprWatts:d.upr*ps.weight}));
+  let resultBig, resultSub, predictionPoint;
+  if (ps.mode === 'watts_for_time') {
+    const targetSec = parseTimeToSec(ps.targetTime);
+    if (!Number.isFinite(targetSec)) return {error:'Enter target time as mm:ss'};
+    const pred = predictWkgInterval(fit, targetSec);
+    const predictedWatts = pred.fit*ps.weight, lowerWatts = pred.lwr*ps.weight, upperWatts = pred.upr*ps.weight;
+    resultBig = Math.round(predictedWatts)+' W';
+    resultSub = '95% CI '+Math.round(lowerWatts)+'–'+Math.round(upperWatts)+' W · '+ps.weight+' kg';
+    predictionPoint = {x: targetSec/60, y: predictedWatts, label: Math.round(predictedWatts)+' W'};
+  } else {
+    const targetWkg = ps.targetWatts / ps.weight;
+    const predictedSec = predictTimeFromWkg(fit, targetWkg);
+    resultBig = secToTime(predictedSec);
+    resultSub = ps.targetWatts+' W at '+ps.weight+' kg';
+    predictionPoint = {x: predictedSec/60, y: ps.targetWatts, label: secToTime(predictedSec)};
+  }
+  const gaugePct = ps.mode === 'watts_for_time'
+    ? clamp01((predictionPoint.y - 150) / (430-150))
+    : clamp01((60 - predictionPoint.x) / (60-30));
+  return {rows, fit, curve, resultBig, resultSub, predictionPoint, gaugePct};
+}
+function riderCurve(rawData, riderWeights, rider, modelChoice) {
+  const rows = cleanData(rawData, 1, riderWeights, [rider]);
+  if (rows.length < 4) return null;
+  const fit = fitChosen(rows, modelChoice);
+  const weight = (riderWeights && riderWeights[rider]) || 80;
+  const curve = curveData(fit).map(d=>Object.assign({}, d, {fitWatts:d.fit*weight}));
+  const best = rows.reduce((b,r)=> r.timeSec<b.timeSec?r:b, rows[0]);
+  return {rows, fit, weight, curve, best};
+}
+
+class Component extends DCLogic {
+  state = {
+    rawData: DEFAULT_RAW_DATA.map((r,i)=>({...r, id:'seed-'+i})),
+    riderWeights: {...DEFAULT_RIDER_WEIGHTS},
+    a: {tab:'predict', settingsOpen:false, mode:'watts_for_time', targetTime:'36:00', targetWatts:371, weight:80, modelChoice:'reciprocal', fastWeight:1, compareView:'curves', historySort:'fastest',
+      riders:[], riderA:'', riderB:'', addOpen:false, newRider:'Lennart', newDate:'', newTime:'', newPower:'', newHR:'', formError:'', newRiderName:'', riderProfileError:''}
+  };
+
+  setField(phone, field, value) { this.setState(s => ({...s, [phone]: {...s[phone], [field]: value}})); }
+  bump(phone, field, delta, min, max) {
+    this.setState(s => {
+      const cur = Number(s[phone][field]) || 0;
+      const next = Math.min(max, Math.max(min, cur+delta));
+      return {...s, [phone]: {...s[phone], [field]: next}};
+    });
+  }
+  exportCsv() {
+    const header='date,time,power,HR,VAM,name';
+    const lines=this.state.rawData.map(r=>[r.date,r.time,r.power,r.HR,r.VAM,r.name].join(','));
+    const blob=new Blob([header+'\n'+lines.join('\n')], {type:'text/csv'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download='schaui_history.csv'; a.click(); URL.revokeObjectURL(a.href);
+  }
+  importCsv(evt) {
+    const file = evt.target.files && evt.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => { this.setState({rawData: parseCsvText(e.target.result)}); };
+    reader.readAsText(file);
+  }
+  toggleRider(rider) {
+    this.setState(s=>{
+      const cur = s.a.riders;
+      const next = cur.includes(rider) ? cur.filter(x=>x!==rider) : [...cur, rider];
+      return {...s, a:{...s.a, riders: next}};
+    });
+  }
+  setAllRiders() { this.setField('a','riders', []); }
+  addRiderProfile() {
+    const name = (this.state.a.newRiderName||'').trim();
+    if (!name) return this.setField('a','riderProfileError','Enter a rider name.');
+    this.setState(s=>{
+      if (s.riderWeights[name]) return {...s, a:{...s.a, riderProfileError:'Rider already exists.'}};
+      return {...s, riderWeights:{...s.riderWeights, [name]:80}, a:{...s.a, newRiderName:'', riderProfileError:'', newRider: s.a.newRider || name}};
+    });
+  }
+  bumpRiderWeight(rider, delta) {
+    this.setState(s=>{
+      const cur = s.riderWeights[rider]||80;
+      const next = Math.min(150, Math.max(30, cur+delta));
+      return {...s, riderWeights:{...s.riderWeights, [rider]: next}};
+    });
+  }
+  addRide() {
+    const a = this.state.a;
+    const rider = a.newRider;
+    const timeSec = parseTimeToSec(a.newTime);
+    const power = Number(a.newPower);
+    if (!rider) return this.setField('a','formError','Select a rider.');
+    if (!Number.isFinite(timeSec)) return this.setField('a','formError','Time must be mm:ss.');
+    if (!Number.isFinite(power) || power<=0) return this.setField('a','formError','Enter valid power.');
+    const vam = Math.round(CLIMB_ASCENT_M*3600/timeSec);
+    const row = {id:'r'+Date.now(), rider, date: a.newDate || new Date().toISOString().slice(0,10), time:a.newTime, power, HR:Number(a.newHR)||null, VAM: vam};
+    this.setState(s=>({...s, rawData:[...s.rawData, row], a:{...s.a, newDate:'', newTime:'', newPower:'', newHR:'', formError:'', addOpen:false}}));
+  }
+  deleteRide(id) { this.setState(s=>({...s, rawData: s.rawData.filter(r=>r.id!==id)})); }
+  seg(active, accent, onAccent) { return active ? {bg:accent, color:onAccent} : {bg:'transparent', color:'rgba(255,255,255,0.6)'}; }
+
+  renderVals() {
+    const s = this.state;
+    const a = s.a;
+    const accent = this.props.accentColor || GREEN_FALLBACK;
+    const onAccent = contrastOn(accent);
+    const accentSoft = mixHex(accent, [255,255,255], 0.32);
+    const accentDeep = mixHex(accent, [10,14,12], 0.5);
+    const logoBg = mixHex(accent, [20,22,28], 0.72);
+    const resultStyle = this.props.resultStyle === 'ring' ? 'ring' : 'card';
+    const chartStyle = this.props.chartStyle === 'minimal' ? 'minimal' : 'confidence';
+    const ridersList = Array.from(new Set(s.rawData.map(r=>r.rider))).sort();
+    const riderA = a.riderA || ridersList[0] || '';
+    const riderB = a.riderB || ridersList[1] || ridersList[0] || '';
+    const riderBColor = 'oklch(0.72 0.15 55)';
+
+    const resA = computeAll(s.rawData, a, s.riderWeights);
+
+    const modeSegA = this.seg(a.mode==='watts_for_time', accent, onAccent), modeSegA2 = this.seg(a.mode!=='watts_for_time', accent, onAccent);
+    const cmpSeg = this.seg(a.compareView==='curves', accent, onAccent), cmpSeg2 = this.seg(a.compareView==='table', accent, onAccent);
+    const sortSeg = this.seg(a.historySort==='fastest', accent, onAccent), sortSeg2 = this.seg(a.historySort==='recent', accent, onAccent);
+
+    const aModelTag = 'Model: ' + (MODEL_LABELS[a.modelChoice] || a.modelChoice);
+
+    const visRows = resA.error ? [] : resA.rows.filter(r=>r.timeSec/60<=60);
+    const visCurve = resA.error ? [] : resA.curve.filter(d=>d.timeSec/60<=60);
+    const aPredictionChart = resA.error ? React.createElement('div',{style:{color:'#f88',fontSize:13,padding:20}},resA.error) : buildChart({
+      accent,
+      yFormat:y=>Math.round(y)+' W',
+      yValues: visRows.map(r=>r.powerToWeight*a.weight).concat(visCurve.flatMap(d=>[d.lwrWatts,d.uprWatts,d.fitWatts]), resA.predictionPoint.x<=60 ? [resA.predictionPoint.y] : []),
+      points: visRows.map(r=>({x:r.timeSec/60, y:r.powerToWeight*a.weight})),
+      ribbon: chartStyle==='confidence' ? {points: resA.curve, lwrKey:'lwrWatts', uprKey:'uprWatts'} : null,
+      lines: [{points: resA.curve, yKey:'fitWatts', width: chartStyle==='confidence'?3:2.4, color:accent}],
+      predPoint: resA.predictionPoint
+    });
+
+    let aComparisonChart = null, aComparisonLegend = [], aModelTableRows = [];
+    if (!resA.error) {
+      const evalTable = MODEL_NAMES.map(name=>evaluateModel(name, resA.rows)).sort((x,y)=>x.weighted_loocv_rmse_wkg-y.weighted_loocv_rmse_wkg);
+      const comparisonCurves = MODEL_NAMES.map((name,i)=>{
+        const f = fitLinearModel(resA.rows, modelDefs[name]);
+        return {name, color: name===a.modelChoice ? accent : MUTED_LINES[i%MUTED_LINES.length],
+          points: range(300).map(j=>{ const t=plotMinSec+(plotMaxSec-plotMinSec)*j/299; return {timeSec:t, powerToWeight: predictWkg(f,t)}; })};
+      });
+      const visRowsCmp = resA.rows.filter(r=>r.timeSec/60<=60);
+      aComparisonChart = buildChart({
+        accent,
+        yFormat:y=>prettyNum(y,2)+' W/kg',
+        yValues: visRowsCmp.map(r=>r.powerToWeight).concat(comparisonCurves.flatMap(cc=>cc.points.filter(p=>p.timeSec/60<=60).map(p=>p.powerToWeight))),
+        points: visRowsCmp.map(r=>({x:r.timeSec/60, y:r.powerToWeight})),
+        lines: comparisonCurves.map(cc=>({points:cc.points, yKey:'powerToWeight', color:cc.color, width: cc.name===a.modelChoice?3:1.6}))
+      });
+      aComparisonLegend = comparisonCurves.map(cc=>({label: MODEL_LABELS[cc.name], color: cc.color}));
+      aModelTableRows = evalTable.map(row=>({
+        label: MODEL_LABELS[row.model], selected: row.model===a.modelChoice,
+        bg: row.model===a.modelChoice ? mixHex(accent,[26,28,34],0.82) : 'oklch(0.20 0.012 260)',
+        border: row.model===a.modelChoice ? '1px solid '+accent : '1px solid transparent',
+        badgeBg: accent, badgeColor: onAccent,
+        rmse: prettyNum(row.rmse_in_sample_wkg,3), wrmse: prettyNum(row.weighted_loocv_rmse_wkg,3), aic: prettyNum(row.aic,1)
+      }));
+    }
+
+    const historyRows = s.rawData.map(r=>({id:r.id, rider:r.rider, date:r.date, dateLabel: fmtDate(r.date), time:r.time, power:r.power, hr:r.HR, vam:r.VAM, _t: parseTimeToSec(r.time), onDelete: () => this.deleteRide(r.id)}))
+      .sort((x,y)=> a.historySort==='fastest' ? x._t-y._t : (y.date < x.date ? -1 : y.date > x.date ? 1 : 0));
+
+    const modelChips = MODEL_NAMES.map(name=>{
+      const seg = this.seg(a.modelChoice===name, accent, onAccent);
+      return {key:'chip-'+name, label: MODEL_LABELS[name], bg: seg.bg, color: seg.color, onClick: () => this.setField('a','modelChoice',name)};
+    });
+    const riderChips = ridersList.map(name=>{
+      const active = a.riders.includes(name);
+      const seg = this.seg(active, accent, onAccent);
+      return {key:'rider-'+name, label:name, bg:seg.bg, color:seg.color, onClick: () => this.toggleRider(name)};
+    });
+    const allSeg = this.seg(a.riders.length===0, accent, onAccent);
+    const aRiderOptions = Object.keys(s.riderWeights).sort();
+    const aRiderProfiles = aRiderOptions.map(name=>({key:'rp-'+name, name, weight:s.riderWeights[name], minus:()=>this.bumpRiderWeight(name,-1), plus:()=>this.bumpRiderWeight(name,1)}));
+    const previewSec = parseTimeToSec(a.newTime);
+    const aNewVamPreview = Number.isFinite(previewSec) ? Math.round(CLIMB_ASCENT_M*3600/previewSec)+' m/h' : '—';
+
+    const aResultRing = resultStyle==='ring' && !resA.error ? buildRing(resA.gaugePct, 148, 12, accent, 'rgba(255,255,255,0.1)') : null;
+
+    let aRidersHaveChart=false, aRidersChart=null, aRiderAStatBig='—', aRiderAStatSub='', aRiderBStatBig='—', aRiderBStatSub='', aRidersEmptyMessage='';
+    if (a.tab==='riders') {
+      const rA = riderCurve(s.rawData, s.riderWeights, riderA, a.modelChoice);
+      const rB = riderB===riderA ? null : riderCurve(s.rawData, s.riderWeights, riderB, a.modelChoice);
+      if (rA || rB) {
+        aRidersHaveChart = true;
+        const lines=[], yValues=[], pts=[];
+        if (rA) { const vis=rA.curve.filter(d=>d.timeSec/60<=60); lines.push({points:vis, yKey:'fitWatts', color:accent, width:3}); yValues.push(...vis.map(d=>d.fitWatts)); pts.push(...rA.rows.filter(r=>r.timeSec/60<=60).map(r=>({x:r.timeSec/60,y:r.powerToWeight*rA.weight}))); }
+        if (rB) { const visB=rB.curve.filter(d=>d.timeSec/60<=60); lines.push({points:visB, yKey:'fitWatts', color:riderBColor, width:3}); yValues.push(...visB.map(d=>d.fitWatts)); pts.push(...rB.rows.filter(r=>r.timeSec/60<=60).map(r=>({x:r.timeSec/60,y:r.powerToWeight*rB.weight}))); }
+        aRidersChart = buildChart({accent, yFormat:y=>Math.round(y)+' W', yValues: yValues.concat(pts.map(p=>p.y)), points: pts, lines});
+        if (rA) { aRiderAStatBig = Math.round(predictWkg(rA.fit,40*60)*rA.weight)+' W'; aRiderAStatSub = '@40min · best '+rA.best.time; }
+        if (rB) { aRiderBStatBig = Math.round(predictWkg(rB.fit,40*60)*rB.weight)+' W'; aRiderBStatSub = '@40min · best '+rB.best.time; }
+      } else {
+        aRidersEmptyMessage = 'Not enough rides yet for this rider selection.';
+      }
+    }
+
+    return {
+      aLogoBg: logoBg, aAccentSoft: accentSoft,
+      aResultGradient: 'linear-gradient(160deg, '+mixHex(accent,[24,26,32],0.32)+', oklch(0.19 0.02 260))',
+      aResultIsCard: resultStyle==='card', aResultIsRing: resultStyle==='ring', aResultRing,
+      aRibbonNote: chartStyle==='confidence' ? ' · 95% confidence band' : '',
+      aIsPredict: a.tab==='predict', aIsCompare: a.tab==='compare', aIsHistory: a.tab==='history',
+      aSetTabPredict: () => this.setField('a','tab','predict'),
+      aSetTabCompare: () => this.setField('a','tab','compare'),
+      aSetTabHistory: () => this.setField('a','tab','history'),
+      aTabPredictColor: a.tab==='predict' ? accent : 'rgba(255,255,255,0.4)',
+      aTabCompareColor: a.tab==='compare' ? accent : 'rgba(255,255,255,0.4)',
+      aTabHistoryColor: a.tab==='history' ? accent : 'rgba(255,255,255,0.4)',
+      aSettingsOpen: a.settingsOpen,
+      aToggleSettings: () => this.setField('a','settingsOpen', !this.state.a.settingsOpen),
+      aCloseSettings: () => this.setField('a','settingsOpen', false),
+      aModeIsWatts: a.mode==='watts_for_time', aModeIsTime: a.mode==='time_for_watts',
+      aSetModeWatts: () => this.setField('a','mode','watts_for_time'),
+      aSetModeTime: () => this.setField('a','mode','time_for_watts'),
+      aModeWattsBg: modeSegA.bg, aModeWattsColor: modeSegA.color, aModeTimeBg: modeSegA2.bg, aModeTimeColor: modeSegA2.color,
+      aTargetTime: a.targetTime, aOnTargetTime: e => this.setField('a','targetTime', e.target.value),
+      aTargetWatts: a.targetWatts, aOnTargetWatts: e => this.setField('a','targetWatts', Number(e.target.value)||0),
+      aWeight: a.weight, aWeightMinus: () => this.bump('a','weight',-1,30,150), aWeightPlus: () => this.bump('a','weight',1,30,150),
+      aResultBig: resA.error ? '—' : resA.resultBig, aResultSub: resA.error ? resA.error : resA.resultSub,
+      aModelTag, aPredictionChart,
+      aCurvesBg: cmpSeg.bg, aCurvesColor: cmpSeg.color, aTableBg: cmpSeg2.bg, aTableColor: cmpSeg2.color,
+      aCompareViewCurves: () => this.setField('a','compareView','curves'), aCompareViewTable: () => this.setField('a','compareView','table'),
+      aCompareIsCurves: a.compareView==='curves', aCompareIsTable: a.compareView==='table',
+      aComparisonChart, aComparisonLegend, aModelTableRows,
+      aRideCount: s.rawData.length,
+      aSortFastestBg: sortSeg.bg, aSortFastestColor: sortSeg.color, aSortRecentBg: sortSeg2.bg, aSortRecentColor: sortSeg2.color,
+      aHistorySortFastest: () => this.setField('a','historySort','fastest'), aHistorySortRecent: () => this.setField('a','historySort','recent'),
+      aHistoryRows: historyRows,
+      aModelChips: modelChips,
+      aFastWeight: a.fastWeight.toFixed(2), aOnFastWeight: e => this.setField('a','fastWeight', Number(e.target.value)),
+      aExportCsv: () => this.exportCsv(), aImportCsv: evt => this.importCsv(evt),
+      aRiderChips: riderChips, aAllRidersBg: allSeg.bg, aAllRidersColor: allSeg.color, aSetAllRiders: () => this.setAllRiders(),
+      aIsRiders: a.tab==='riders',
+      aSetTabRiders: () => this.setField('a','tab','riders'),
+      aTabRidersColor: a.tab==='riders' ? accent : 'rgba(255,255,255,0.4)',
+      aRiderAColor: accent, aRiderBColor: riderBColor,
+      aRiderALabel: riderA || '—', aRiderBLabel: riderB || '—',
+      aCycleRiderA: () => { const i=ridersList.indexOf(riderA); this.setField('a','riderA', ridersList[(i+1)%ridersList.length] || ''); },
+      aCycleRiderB: () => { const i=ridersList.indexOf(riderB); this.setField('a','riderB', ridersList[(i+1)%ridersList.length] || ''); },
+      aRidersModelLabel: MODEL_LABELS[a.modelChoice],
+      aRidersHaveChart, aRidersNoChart: a.tab==='riders' && !aRidersHaveChart, aRidersChart, aRiderAStatBig, aRiderAStatSub, aRiderBStatBig, aRiderBStatSub, aRidersEmptyMessage,
+      aAddFormOpen: a.addOpen, aAddFormToggleLabel: a.addOpen ? 'Cancel' : '+ Add ride', aToggleAddForm: () => this.setField('a','addOpen', !this.state.a.addOpen),
+      aNewRider: a.newRider, aOnNewRider: e=>this.setField('a','newRider',e.target.value),
+      aNewDate: a.newDate, aOnNewDate: e=>this.setField('a','newDate',e.target.value),
+      aNewTime: a.newTime, aOnNewTime: e=>this.setField('a','newTime',e.target.value),
+      aNewPower: a.newPower, aOnNewPower: e=>this.setField('a','newPower',e.target.value),
+      aNewHR: a.newHR, aOnNewHR: e=>this.setField('a','newHR',e.target.value),
+      aNewVamPreview, aFormError: a.formError, aSubmitRide: () => this.addRide(),
+      aRiderOptions, aRiderProfiles,
+      aNewRiderName: a.newRiderName, aOnNewRiderName: e=>this.setField('a','newRiderName',e.target.value),
+      aAddRiderProfile: () => this.addRiderProfile(), aRiderProfileError: a.riderProfileError
+    };
+  }
+}
+
+</script>
+</body>
+</html>
